@@ -3,60 +3,86 @@ import unittest
 
 
 class RangeTest(unittest.TestCase):
-    def test_init(self):
-        self.assertEqual(Range(1, 2).unit, [1, 2])
-        self.assertEqual(Range(-2, -1).unit, [-2, -1])
-        self.assertEqual(Range(-1, 1).unit, [-1, 1])
+    def test_init_minmax(self):
+        self.assertEqual(Range(1, 2)._end, [1, 2])
+
+    def test_init_wrong_parameters(self):
+        self.assertEqual(Range(2, 1)._end, [])
+
+    def test_init_empty(self):
+        self.assertEqual(Range()._end, [])
 
     def test_is_empty(self):
         self.assertTrue(Range().is_empty())
+
+    def test_is_not_empty(self):
         self.assertFalse(Range(1, 2).is_empty())
-        self.assertTrue(Range(1, 1).is_empty())
-        self.assertTrue(Range(2, 1).is_empty())
 
     def test_is_inside(self):
-        self.assertTrue(Range(1, 2).is_inside(1))
-        self.assertFalse(Range(3, 2).is_inside(1))
-        self.assertTrue(Range(1, 3).is_inside(2))
+        self.assertFalse(1 in Range(3, 2))
+
+    def test_is_not_inside(self):
+        self.assertFalse(1 in Range(3, 2))
 
     def test_range_equal(self):
-        self.assertTrue(Range(-1, 1) == Range(-1, 1))
         self.assertTrue(Range(1, -1) == Range(1, -1))
+
+    def test_range_equal(self):
         self.assertFalse(Range(-1, 1) == Range(1, 3))
 
     def test_range_intersection(self):
-        self.assertTrue(Range(1, 4) & Range(3, 5))
-        self.assertTrue(Range(0, 2) & Range(-1, 1))
-        self.assertFalse(Range(1, 4) & Range(4, 6))
-        self.assertFalse(Range(1, 4) & Range())
+        self.assertTrue(Range(1, 4).is_intersect(Range(3, 5)))
 
-    def test_range_ingoing(self):
+    def test_range_not_intersection(self):
+        self.assertFalse(Range(1, 4).is_intersect(Range(4, 6)))
+
+    def test_range_ingoing_to_first(self):
         self.assertTrue(Range(0, 3) > Range(1, 2))
-        self.assertTrue(Range(0, 3) < Range(-1, 4))
-        self.assertFalse(Range() > Range(1, 2))
+
+    def test_range_ingoing_to_second(self):
+        self.assertTrue(Range(1, 2) < Range(0, 3))
+
+    def test_range_not_ingoing_to_first(self):
         self.assertFalse(Range(0, 3) > Range(1, 4))
 
+    def test_range_not_ingoing_to_second(self):
+        self.assertFalse(Range(1, 4) < Range(0, 3))
+
     def test_intersection(self):
-        self.assertEqual(Range(1, 4) * Range(2, 6), [2, 4])
-        self.assertEqual(Range(1, 3) * Range(4, 6), [])
-        self.assertEqual(Range() * Range(2, 6), [])
+        self.assertEqual(Range(1, 4) & Range(2, 6), Range(2, 4))
 
-    def test_ingoiong(self):
-        self.assertEqual(Range(1, 2) + Range(3, 4), [])
-        self.assertEqual(Range(1, 4) + Range(), [])
-        self.assertEqual(Range(1, 3) + Range(2, 6), [1, 6])
+    def test_not_intersection(self):
+        self.assertEqual(Range(1, 3) & Range(4, 6), [])
 
-    def test_print_range(self):
-        self.assertEqual(Range(-1, 2).print_range(), "-1, 0, 1, 2")
+    def test_union(self):
+        self.assertEqual(Range(1, 3) | Range(2, 6), Range(1, 6))
 
-    def test_range_minmax(self):
-        self.assertEqual(Range(1, 4).rmax(), 4)
-        self.assertEqual(Range(1, 4).rmin(), 1)
-        self.assertIsNone(Range().rmin())
+    def test_not_union(self):
+        self.assertEqual(Range(1, 2) | Range(3, 4), [])
+
+    def test_range_min(self):
+        self.assertEqual(Range(1, 4).range_min(), 1)
+
+    def test_range_max(self):
+        self.assertEqual(Range(1, 4).range_max(), 4)
+
+    def test_range_minmax_empty(self):
+        self.assertIsNone(Range().range_min())
 
     def test_range_to_string(self):
-        self.assertEqual(Range(1, 4).to_string(), "[1, 4]")
-        self.assertEqual(Range().to_string(), "[]")
+        self.assertEqual(str(Range(1, 4)), "[1, 4]")
+
+    def test_empty_range_to_string(self):
+        self.assertEqual(str(Range()), "[]")
+
+    def test_iterator(self):
+        self.assertEqual([i for i in Range(-1, 2)], [-1, 0, 1, 2])
+
+    def test_iterator_empty(self):
+        self.assertEqual([i for i in Range()], [])
+
+    def test_iterator_wrong_parameters(self):
+        self.assertEqual([i for i in Range(1, -1)], [])
 
 
 if __name__ == "__main__":
